@@ -52,9 +52,24 @@ jobs:
         with:
           path: _site
 
+  feeds:
+    # Reports what the app will see for each feed (size, episode hosts,
+    # streaming support). Warnings only: it never blocks publishing.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check feeds
+        run: python scripts/check_feeds.py
+
   deploy:
-    # Only publish from main, never from a pull request.
-    if: github.event_name != 'pull_request'
+    # Only publish from main, never from a pull request or a manual run on
+    # another branch.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
     permissions:
