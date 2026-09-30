@@ -9,29 +9,24 @@
   "podcasts": [
     {
       "id": "sleepy-noises",
-      "feedUrl": "https://feeds.megaphone.fm/REPLACE-WITH-SLEEPY-NOISES-FEED-ID",
+      "feedUrl": "https://feeds.megaphone.fm/EESSI2175317880",
       "categoryId": "sleep-sounds",
       "featured": true
     },
     {
       "id": "sleepy-white-noise",
-      "feedUrl": "https://feeds.megaphone.fm/REPLACE-WITH-SLEEPY-WHITE-NOISE-FEED-ID",
+      "feedUrl": "https://feeds.megaphone.fm/EESSI5579817249",
       "categoryId": "sleep-sounds"
     },
     {
-      "id": "sleepy-stories",
-      "feedUrl": "https://feeds.megaphone.fm/REPLACE-WITH-SLEEPY-STORIES-FEED-ID",
-      "categoryId": "sleep-stories"
-    },
-    {
       "id": "terrified",
-      "feedUrl": "https://feeds.megaphone.fm/REPLACE-WITH-TERRIFIED-FEED-ID",
+      "feedUrl": "https://feeds.megaphone.fm/EESSI6987154352",
       "categoryId": "sleep-stories",
       "title": "Terrified - Horror Bedtime Stories"
     },
     {
       "id": "sleepy-nature",
-      "feedUrl": "https://feeds.megaphone.fm/REPLACE-WITH-SLEEPY-NATURE-FEED-ID",
+      "feedUrl": "https://feeds.megaphone.fm/EESSI7315105373",
       "categoryId": "nature"
     }
   ]
