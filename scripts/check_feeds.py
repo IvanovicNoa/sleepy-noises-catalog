@@ -29,6 +29,7 @@ TRUSTED_HOSTS = {
     "megaphone.cloud",
     "megaphone.imgix.net",
     "ivanovicnoa.github.io",
+    "pdst.fm",  # Spotify Ad Analytics prefix; redirects to traffic.megaphone.fm
 }
 MAX_FEED_BYTES = 8 * 1024 * 1024
 ITUNES = "{http://www.itunes.com/dtds/podcast-1.0.dtd}"
