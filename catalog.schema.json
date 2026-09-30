@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.schema.json",
+  "title": "Sleepy Noises catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "updatedAt",
+    "categories",
+    "podcasts"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/slug"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "podcasts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "feedUrl",
+          "categoryId"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/slug"
+          },
+          "feedUrl": {
+            "$ref": "#/$defs/megaphoneFeed"
+          },
+          "categoryId": {
+            "$ref": "#/$defs/slug"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "artworkUrl": {
+            "$ref": "#/$defs/httpsUrl"
+          },
+          "featured": {
+            "type": "boolean"
+          },
+          "premiumFeedUrl": {
+            "$ref": "#/$defs/megaphoneFeed"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "httpsUrl": {
+      "type": "string",
+      "description": "Artwork must be on a host the app trusts, or the app rejects the whole catalog.",
+      "pattern": "^https://([A-Za-z0-9-]+\\.)*(megaphone\\.fm|megaphone\\.cloud|megaphone\\.imgix\\.net|ivanovicnoa\\.github\\.io)(/[^\\s]*)?$",
+      "maxLength": 2048
+    },
+    "megaphoneFeed": {
+      "type": "string",
+      "pattern": "^https://feeds\\.megaphone\\.fm/[A-Za-z0-9_-]+$"
+    }
+  }
+}

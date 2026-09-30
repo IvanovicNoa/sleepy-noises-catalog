@@ -1,0 +1,68 @@
+name: Publish
+
+# Every change to main is validated, then published to
+# https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.json
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "jsonschema[format]==4.*"
+      - name: Validate catalog.json
+        run: |
+          python - <<'PY'
+          import json, jsonschema
+          schema = json.load(open("catalog.schema.json"))
+          data = json.load(open("catalog.json"))
+          jsonschema.validate(data, schema, format_checker=jsonschema.FormatChecker())
+          ids = [p["id"] for p in data["podcasts"]]
+          assert len(ids) == len(set(ids)), "duplicate podcast id"
+          cat_ids = [c["id"] for c in data["categories"]]
+          assert len(cat_ids) == len(set(cat_ids)), "duplicate category id"
+          missing = [p["id"] for p in data["podcasts"] if p["categoryId"] not in cat_ids]
+          assert not missing, f"unknown categoryId on {missing}"
+          placeholders = [p["id"] for p in data["podcasts"] if "REPLACE-WITH" in p["feedUrl"]]
+          if placeholders:
+              print(f"::warning::placeholder feed URLs still in use: {placeholders}")
+          print("catalog OK:", len(ids), "podcasts")
+          PY
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp catalog.json catalog.schema.json _site/
+          if [ -d images ]; then cp -r images _site/; fi
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    # Only publish from main, never from a pull request.
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
