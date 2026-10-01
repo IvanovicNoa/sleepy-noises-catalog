@@ -48,6 +48,9 @@ jobs:
           mkdir -p _site
           cp catalog.json catalog.schema.json _site/
           if [ -d images ]; then cp -r images _site/; fi
+          # Test clip the app plays from Settings to prove its player works
+          # independently of Megaphone (generated noise, no copyright).
+          if [ -d test-audio ]; then cp -r test-audio _site/; fi
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site

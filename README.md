@@ -41,3 +41,10 @@ Run workflow (or just push a change).
 
 Check it worked: open
 <https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.json> in a browser.
+
+## Test audio
+
+`test-audio/soft-noise.wav` is 60 seconds of generated brown noise (no copyright). The app's
+Settings → **Play test sound** and **Test audio connection** use it to check the player works
+on a phone without depending on Megaphone. Published at
+`https://ivanovicnoa.github.io/sleepy-noises-catalog/test-audio/soft-noise.wav`.
