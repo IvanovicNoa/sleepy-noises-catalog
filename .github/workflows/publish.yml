@@ -68,6 +68,8 @@ jobs:
           python-version: "3.12"
       - name: Check feeds
         run: python scripts/check_feeds.py
+      - name: Which CDN each client is sent to
+        run: python scripts/route_probe.py
 
   deploy:
     # Only publish from main, never from a pull request or a manual run on
