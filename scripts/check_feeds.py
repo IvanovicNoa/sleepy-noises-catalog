@@ -98,6 +98,49 @@ def range_probe(url, start):
     }
 
 
+def stream_probe(url, start=0, want=8 * 1024 * 1024, ranged=True):
+    """Downloads `want` bytes like a player does (open-ended range from
+    `start`, or a plain GET), reporting speed and any error the CDN sends
+    mid-stream. Players need this to work, not just two-byte requests."""
+    recorder = RecordingRedirects()
+    opener = urllib.request.build_opener(recorder)
+    headers = {"User-Agent": PLAYER_UA}
+    if ranged:
+        headers["Range"] = f"bytes={start}-"
+    request = urllib.request.Request(url, headers=headers)
+    began = time.monotonic()
+    got = 0
+    head = b""
+    status = None
+    try:
+        with opener.open(request, timeout=30) as response:
+            status = response.status
+            while got < want:
+                chunk = response.read(min(256 * 1024, want - got))
+                if not chunk:
+                    break
+                if not head:
+                    head = chunk[:400]
+                got += len(chunk)
+    except urllib.error.HTTPError as e:
+        body = e.read(400)
+        return {"error": f"HTTP {e.code}", "body": body.decode("latin-1"), "hops": recorder.hops}
+    except Exception as e:  # noqa: BLE001 - report anything
+        return {"error": repr(e), "status": status, "bytes_read": got,
+                "seconds": round(time.monotonic() - began, 2)}
+    seconds = time.monotonic() - began
+    looks = "ID3" if head[:3] == b"ID3" else (
+        "mp3 frame" if len(head) > 1 and head[0] == 0xFF and head[1] & 0xE0 == 0xE0 else
+        "NOT AUDIO: " + head[:200].decode("latin-1", "replace"))
+    return {
+        "status": status,
+        "bytes_read": got,
+        "seconds": round(seconds, 2),
+        "mbit_per_s": round(got * 8 / 1e6 / seconds, 1) if seconds else None,
+        "starts_with": looks if start == 0 else head[:4].hex(),
+    }
+
+
 def check(podcast):
     pid, url = podcast["id"], podcast["feedUrl"]
     print(f"\n=== {pid}  {url}")
@@ -176,6 +219,14 @@ def check(podcast):
     if start.get("content_range") and "/" in start["content_range"]:
         tail = start["content_range"].rsplit("/", 1)[1]
         total = int(tail) if tail.isdigit() else None
+    for label, kwargs in (
+        ("stream from start (range bytes=0-)", {}),
+        ("plain download (no range)", {"ranged": False}),
+    ):
+        result = stream_probe(audio, **kwargs)
+        print(f"  {label}: {json.dumps(result)}")
+        if "error" in result or result.get("bytes_read", 0) < 1024 * 1024:
+            warn(f"{pid}: {label} failed: {result}")
     if total:
         middle = range_probe(audio, total // 2)
         print(f"  range in the middle: {json.dumps(middle)}")
