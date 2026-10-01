@@ -56,7 +56,13 @@ class RecordingRedirects(urllib.request.HTTPRedirectHandler):
         self.hops = []
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        self.hops.append((code, urlsplit(req.full_url).hostname))
+        source = urlsplit(req.full_url)
+        target = urlsplit(newurl)
+        # Scheme matters: iOS blocks plain-http media inside apps (App
+        # Transport Security) even though browsers follow it.
+        self.hops.append(
+            (code, f"{source.scheme}://{source.hostname}", f"-> {target.scheme}://{target.hostname}")
+        )
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
@@ -161,6 +167,9 @@ def check(podcast):
     )
     start = range_probe(audio, 0)
     print(f"  range at start: {json.dumps(start)}")
+    insecure = [h for h in start.get("hops", []) if "-> http://" in h[2]]
+    if insecure:
+        warn(f"{pid}: a redirect leaves HTTPS (iOS apps block this): {insecure}")
     if start.get("status") != 206:
         warn(f"{pid}: audio server did not answer a range request with 206: {start}")
     total = None
