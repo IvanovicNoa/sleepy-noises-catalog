@@ -42,6 +42,30 @@ Run workflow (or just push a change).
 Check it worked: open
 <https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.json> in a browser.
 
+## Episode tags (`tags.json`)
+
+The app works out what every episode is (rain, thunder, brown noise, horror…) from its title, on
+the phone. `tags.json` is an optional, reviewed layer on top: an entry here wins over the app's
+guess. Each entry is one episode:
+
+```json
+{ "podcastId": "sleepy-noises", "guid": "<the episode's <guid>>", "kind": "sound", "traits": ["rain", "thunder"] }
+```
+
+- Trait ids are listed in `tags.schema.json` (the same list as the app's
+  `lib/features/catalog/domain/trait.dart`). Add a new trait in the app first, then here.
+- Fix a wrong tag by editing the entry in a PR; the Publish workflow validates the file.
+- **Tag episodes** (Actions → Tag episodes → Run workflow, and every Monday) asks Claude to tag
+  episodes that have no entry yet and opens a PR with the result. Review and merge it.
+  It needs two one-time settings:
+  1. Settings → Secrets and variables → Actions → New repository secret
+     `ANTHROPIC_API_KEY` (from console.anthropic.com → API keys). The key stays in GitHub; the
+     app never sees it. A run costs cents (Message Batches API, half price).
+  2. Settings → Actions → General → Workflow permissions → tick
+     *Allow GitHub Actions to create and approve pull requests*.
+- Pull requests opened by the workflow do not start other workflows (a GitHub rule); the Publish
+  workflow validates `tags.json` when the PR is merged into `main`.
+
 ## Share landing page (`listen/`)
 
 Links shared from the app point to

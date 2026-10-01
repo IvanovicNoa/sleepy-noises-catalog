@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ivanovicnoa.github.io/sleepy-noises-catalog/tags.schema.json",
+  "title": "Sleepy Noises episode tags",
+  "description": "Reviewed traits per episode. The app prefers these over its own guess. Trait ids must match the app's lib/features/catalog/domain/trait.dart.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "episodes"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1
+    },
+    "updatedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "episodes": {
+      "type": "array",
+      "maxItems": 20000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "podcastId",
+          "guid",
+          "traits"
+        ],
+        "properties": {
+          "podcastId": {
+            "$ref": "#/$defs/slug"
+          },
+          "guid": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "sound",
+              "story"
+            ]
+          },
+          "traits": {
+            "type": "array",
+            "maxItems": 12,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/trait"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
+    "trait": {
+      "type": "string",
+      "enum": [
+        "rain",
+        "thunder",
+        "ocean",
+        "water",
+        "forest",
+        "birds",
+        "wind",
+        "fire",
+        "night",
+        "city",
+        "train",
+        "cafe",
+        "fan",
+        "airplane",
+        "appliance",
+        "music",
+        "white",
+        "pink",
+        "brown",
+        "green",
+        "calm",
+        "fantasy",
+        "fairytale",
+        "nature",
+        "history",
+        "mystery",
+        "horror",
+        "scifi"
+      ]
+    }
+  }
+}
