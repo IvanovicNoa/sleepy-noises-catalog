@@ -1,7 +1,7 @@
 # Sleepy Noises catalog
 
 The list of shows the **Sleepy Noises** app displays. The app downloads
-`https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.json` on launch and keeps its last
+`https://listen.sleepynoises.com/catalog.json` on launch and keeps its last
 good copy for offline use. Change this file and every installed app picks it up, no app update
 needed.
 
@@ -24,7 +24,7 @@ contain anything secret: no Megaphone API token, no private or premium feed URLs
    | `feedUrl` | yes | must be `https://feeds.megaphone.fm/...` |
    | `categoryId` | yes | one of the `id`s in `categories` |
    | `title` | no | overrides the title from the RSS feed |
-   | `artworkUrl` | no | overrides the feed artwork; must be on `megaphone.imgix.net` or this site (put the image in `images/` and use `https://ivanovicnoa.github.io/sleepy-noises-catalog/images/<file>`) |
+   | `artworkUrl` | no | overrides the feed artwork; must be on `megaphone.imgix.net` or this site (put the image in `images/` and use `https://listen.sleepynoises.com/images/<file>`) |
    | `featured` | no | `true` puts the show first in its row |
    | `premiumFeedUrl` | no | **never use.** This file is public, so a premium feed here would give the ad-free audio away. Premium feeds will come from the authenticated backend (see the app's `docs/roadmap.md` §6.3); the field will be removed from the schema then. |
 
@@ -39,8 +39,14 @@ Categories are rows on the Home screen; `sortOrder` sets their order.
 Settings → Pages → Build and deployment → Source: **GitHub Actions**. Then Actions → Publish →
 Run workflow (or just push a change).
 
+Custom domain: Settings → Pages → Custom domain `listen.sleepynoises.com`, with *Enforce HTTPS*
+ticked. DNS (in Squarespace): a `CNAME` record `listen` → `ivanovicnoa.github.io`; the domain is
+verified in GitHub (profile → Settings → Pages). No `CNAME` file is needed because the site is
+deployed by Actions. The old address `ivanovicnoa.github.io/sleepy-noises-catalog/…` redirects
+here, so copies of the app from before step 21 keep working.
+
 Check it worked: open
-<https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.json> in a browser.
+<https://listen.sleepynoises.com/catalog.json> in a browser.
 
 ## Episode tags (`tags.json`)
 
@@ -69,7 +75,7 @@ guess. Each entry is one episode:
 ## Share landing page (`listen/`)
 
 Links shared from the app point to
-`https://ivanovicnoa.github.io/sleepy-noises-catalog/listen/?show=<podcast id>&episode=<feed guid>`.
+`https://listen.sleepynoises.com/listen/?show=<podcast id>&episode=<feed guid>`.
 The page (`listen/index.html`, `listen.js`, `listen.css`) shows the show and episode from this
 catalog and the public RSS feed, tries to open the app (`sleepynoises://app/listen?…`), and offers
 "Open in Sleepy Noises". Once the app is in the App Store, set `APP_STORE_URL` at the top of

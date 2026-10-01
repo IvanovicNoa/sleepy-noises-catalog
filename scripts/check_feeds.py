@@ -28,6 +28,7 @@ TRUSTED_HOSTS = {
     "megaphone.fm",
     "megaphone.cloud",
     "megaphone.imgix.net",
+    "listen.sleepynoises.com",
     "ivanovicnoa.github.io",
     "pdst.fm",  # Spotify Ad Analytics prefix; redirects to traffic.megaphone.fm
 }

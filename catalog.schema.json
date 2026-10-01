@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.schema.json",
+  "$id": "https://listen.sleepynoises.com/catalog.schema.json",
   "title": "Sleepy Noises catalog",
   "type": "object",
   "additionalProperties": false,
