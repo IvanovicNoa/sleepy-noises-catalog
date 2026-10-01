@@ -42,12 +42,27 @@ jobs:
           if placeholders:
               print(f"::warning::placeholder feed URLs still in use: {placeholders}")
           print("catalog OK:", len(ids), "podcasts")
+
+          # Reviewed episode tags (optional file, see scripts/tag_episodes.py).
+          tags = json.load(open("tags.json"))
+          jsonschema.validate(
+              tags,
+              json.load(open("tags.schema.json")),
+              format_checker=jsonschema.FormatChecker(),
+          )
+          keys = [(e["podcastId"], e["guid"]) for e in tags["episodes"]]
+          assert len(keys) == len(set(keys)), "duplicate podcastId + guid in tags.json"
+          unknown = sorted({p for p, _ in keys} - set(ids))
+          assert not unknown, f"tags.json names unknown podcasts {unknown}"
+          print("tags OK:", len(keys), "episodes")
           PY
       - name: Assemble site
         run: |
           mkdir -p _site
-          cp catalog.json catalog.schema.json _site/
+          cp catalog.json catalog.schema.json tags.json tags.schema.json _site/
           if [ -d images ]; then cp -r images _site/; fi
+          # Landing page for links shared from the app (…/listen/?show=…).
+          cp -r listen _site/
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
