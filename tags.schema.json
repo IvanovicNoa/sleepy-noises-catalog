@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ivanovicnoa.github.io/sleepy-noises-catalog/tags.schema.json",
+  "$id": "https://listen.sleepynoises.com/tags.schema.json",
   "title": "Sleepy Noises episode tags",
   "description": "Reviewed traits per episode. The app prefers these over its own guess. Trait ids must match the app's lib/features/catalog/domain/trait.dart.",
   "type": "object",
