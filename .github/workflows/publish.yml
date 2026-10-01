@@ -48,6 +48,8 @@ jobs:
           mkdir -p _site
           cp catalog.json catalog.schema.json _site/
           if [ -d images ]; then cp -r images _site/; fi
+          # Landing page for links shared from the app (…/listen/?show=…).
+          cp -r listen _site/
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
