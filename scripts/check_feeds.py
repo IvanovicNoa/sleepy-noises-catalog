@@ -136,6 +136,9 @@ def check(podcast):
             usable.append((item, enclosure, audio))
     print(f"episodes: {len(items)} in feed, {len(usable)} usable by the app")
     print(f"audio hosts: {dict(hosts)}")
+    durations = Counter(item.findtext(ITUNES + "duration") or "(none)" for item in items)
+    common = ", ".join(f"{d} x{n}" for d, n in durations.most_common(5))
+    print(f"durations: {len(durations)} different; most common: {common}")
     untrusted = {h: n for h, n in hosts.items() if not trusted(f"https://{h}/")}
     if untrusted:
         warn(f"{pid}: episodes on hosts the app does not trust: {untrusted}")
