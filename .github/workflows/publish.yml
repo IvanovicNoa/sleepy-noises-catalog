@@ -1,7 +1,7 @@
 name: Publish
 
 # Every change to main is validated, then published to
-# https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.json
+# https://listen.sleepynoises.com/catalog.json
 on:
   push:
     branches: [main]

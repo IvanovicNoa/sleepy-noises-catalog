@@ -24,7 +24,7 @@ contain anything secret: no Megaphone API token, no private or premium feed URLs
    | `feedUrl` | yes | must be `https://feeds.megaphone.fm/...` |
    | `categoryId` | yes | one of the `id`s in `categories` |
    | `title` | no | overrides the title from the RSS feed |
-   | `artworkUrl` | no | overrides the feed artwork; must be on `megaphone.imgix.net` or this site (put the image in `images/` and use `https://listen.sleepynoises.com/images/<file>`) |
+   | `artworkUrl` | no | overrides the feed artwork; must be on `megaphone.imgix.net` or this site (put the image in `images/` and use `https://listen.sleepynoises.com/images/<file>`). Publish refuses any other host, since the app would reject the whole catalog |
    | `featured` | no | `true` puts the show first in its row |
    | `premiumFeedUrl` | no | **never use.** This file is public, so a premium feed here would give the ad-free audio away. Premium feeds will come from the authenticated backend (see the app's `docs/roadmap.md` §6.3); the field will be removed from the schema then. |
 

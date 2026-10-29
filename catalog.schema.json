@@ -107,7 +107,7 @@
     "httpsUrl": {
       "type": "string",
       "description": "Artwork must be on a host the app trusts, or the app rejects the whole catalog.",
-      "pattern": "^https://([A-Za-z0-9-]+\\.)*(megaphone\\.fm|megaphone\\.cloud|megaphone\\.imgix\\.net|ivanovicnoa\\.github\\.io)(/[^\\s]*)?$",
+      "pattern": "^https://([A-Za-z0-9-]+\\.)*(megaphone\\.fm|megaphone\\.cloud|megaphone\\.imgix\\.net|listen\\.sleepynoises\\.com)(/[^\\s]*)?$",
       "maxLength": 2048
     },
     "megaphoneFeed": {
