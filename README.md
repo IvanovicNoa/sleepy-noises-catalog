@@ -34,6 +34,33 @@ contain anything secret: no Megaphone API token, no private or premium feed URLs
 
 Categories are rows on the Home screen; `sortOrder` sets their order.
 
+## Ask old versions to update (`minAppVersion`)
+
+If a release ever ships a bad bug, fix it in a new version first. When the fixed version is live
+in a store, add (or raise) that store's value at the top level of `catalog.json`:
+
+```json
+"minAppVersion": { "ios": "1.2.1", "android": "1.2.1" }
+```
+
+Phones running an older version see *Please update Sleepy Noises* on Home, with an **Update**
+button that opens the app's store page. The listener can close it (*Not now* hides it for a
+day); *Settings → About* keeps an **Update** button.
+
+- `ios` and `android` are separate and both optional. Set `ios` once Apple has released the fix,
+  and `android` once Google Play offers it to everyone (100% rollout).
+- `MAJOR.MINOR.PATCH` only, without `+build` (`1.2.1`, not `1.2.1+8`). Publish refuses anything
+  else, and a misspelt store such as `andriod`. Every run shows the live value as a notice.
+- Leave it in place afterwards: it never affects newer versions. Raise it for the next bad bug.
+  Lower or remove it to take the message back.
+- Phones see it at their next start or pull to refresh, within about 10 minutes of publishing.
+  Phones that stay offline keep the last value they saw.
+- Only app versions that know the field (the app's step 53 and later) can be asked; older ones
+  ignore it.
+- Never change `version` for this: every installed app would reject the whole catalog.
+
+The whole runbook is in the app's `docs/release-checklist.md` (*If a release ships a bad bug*).
+
 ## One-time setup
 
 Settings → Pages → Build and deployment → Source: **GitHub Actions**. Then Actions → Publish →

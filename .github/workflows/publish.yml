@@ -42,6 +42,10 @@ jobs:
           if placeholders:
               print(f"::warning::placeholder feed URLs still in use: {placeholders}")
           print("catalog OK:", len(ids), "podcasts")
+          # Every run shows when older apps are being asked to update.
+          floor = data.get("minAppVersion")
+          if floor:
+              print(f"::notice::Older apps are asked to update: {json.dumps(floor)}")
 
           # Reviewed episode tags (optional file, see scripts/tag_episodes.py).
           tags = json.load(open("tags.json"))

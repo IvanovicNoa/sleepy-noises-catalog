@@ -82,6 +82,20 @@
           }
         }
       }
+    },
+    "minAppVersion": {
+      "description": "Phones running an older app version than this, per store, are asked to update. Set a store's value only once the fixed version is live in that store. Leave it afterwards: it never affects newer versions.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "ios": {
+          "$ref": "#/$defs/appVersion"
+        },
+        "android": {
+          "$ref": "#/$defs/appVersion"
+        }
+      }
     }
   },
   "$defs": {
@@ -99,6 +113,11 @@
     "megaphoneFeed": {
       "type": "string",
       "pattern": "^https://feeds\\.megaphone\\.fm/[A-Za-z0-9_-]+$"
+    },
+    "appVersion": {
+      "type": "string",
+      "description": "MAJOR.MINOR.PATCH: the app's pubspec.yaml version without its +build number, e.g. 1.2.1.",
+      "pattern": "^(0|[1-9][0-9]{0,3})\\.(0|[1-9][0-9]{0,3})\\.(0|[1-9][0-9]{0,3})$"
     }
   }
 }
