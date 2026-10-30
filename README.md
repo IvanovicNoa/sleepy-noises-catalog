@@ -49,6 +49,8 @@ day); *Settings → About* keeps an **Update** button.
 
 - `ios` and `android` are separate and both optional. Set `ios` once Apple has released the fix,
   and `android` once Google Play offers it to everyone (100% rollout).
+- Only for a fix that installs wherever the old version did (the same oldest iOS and Android).
+  A phone that can't install it would be asked to update every day, with nothing to update to.
 - `MAJOR.MINOR.PATCH` only, without `+build` (`1.2.1`, not `1.2.1+8`). Publish refuses anything
   else, and a misspelt store such as `andriod`. Every run shows the live value as a notice.
 - Leave it in place afterwards: it never affects newer versions. Raise it for the next bad bug.
