@@ -138,7 +138,9 @@ def check(podcast):
     untrusted = {h: n for h, n in hosts.items() if not trusted(f"https://{h}/")}
     if untrusted:
         warn(f"{pid}: episodes on hosts the app does not trust: {untrusted}")
-    if items and not usable:
+    if not items:
+        warn(f"{pid}: the feed has no episodes yet; the app shows the show with \"New episodes are on their way.\"")
+    elif not usable:
         warn(f"{pid}: the app will show NO episodes for this show")
 
     sample = usable[0] if usable else None

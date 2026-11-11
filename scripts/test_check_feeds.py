@@ -67,7 +67,23 @@ class FakeResponse:
         return False
 
 
+class EmptyResponse(FakeResponse):
+    def read(self, limit):
+        return b'<rss version="2.0"><channel><title>Terrified</title></channel></rss>'
+
+
 class Check(unittest.TestCase):
+    def test_a_show_without_episodes_is_said(self):
+        # A show can be in the catalog before its first episode is out. The
+        # app then shows it empty, which is worth a yellow line before a launch.
+        with mock.patch.object(check_feeds.urllib.request, "urlopen", return_value=EmptyResponse()):
+            said = printed(check_feeds.check, {"id": "terrified", "feedUrl": "https://feeds.megaphone.fm/TEST"})
+        self.assertIn("episodes: 0 in feed, 0 usable by the app", said.splitlines())
+        self.assertEqual(
+            [line for line in said.splitlines() if line.startswith("::")],
+            ['::warning::terrified: the feed has no episodes yet; the app shows the show with "New episodes are on their way."'],
+        )
+
     def test_nothing_a_feed_says_starts_a_line(self):
         # A line that starts with "::" is a command to the workflow.
         probe = {"status": 206, "content_range": "bytes 0-1/x", "hops": []}
