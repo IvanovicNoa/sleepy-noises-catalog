@@ -4,7 +4,13 @@ updates:
     directory: /
     schedule:
       interval: monthly
+  # scripts/requirements-*.txt, each package pinned to its checksums. One
+  # pull request a month for all of them, so they move together; the Publish
+  # workflow tries them against the scripts before it is merged.
   - package-ecosystem: pip
     directory: /scripts
     schedule:
       interval: monthly
+    groups:
+      python:
+        patterns: ["*"]

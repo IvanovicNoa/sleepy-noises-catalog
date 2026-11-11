@@ -29,8 +29,11 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.12"
-      - run: pip install "jsonschema[format]==4.*"
-      - name: Tests of the check itself
+      # Each package pinned to one version and to its files' checksums: what
+      # runs here decides what is published.
+      - run: |
+          pip install --require-hashes --only-binary :all: -r scripts/requirements-check.txt
+      - name: Tests of the scripts
         run: python -m unittest discover -s scripts -p "test_*.py"
       - name: The catalog before this change
         # A pull request is compared with the branch it goes into, a push
@@ -75,6 +78,26 @@ jobs:
           python-version: "3.12"
       - name: Check feeds
         run: python scripts/check_feeds.py
+
+  tagging:
+    # The Tag episodes workflow runs on its own, on Mondays, with the API
+    # key. Here, with no key and at no cost: its packages still install as
+    # pinned, the script still fits the SDK (a stand-in answers for the
+    # API), and it still reads the feeds. An update of the SDK that breaks
+    # it is red on its pull request. Never blocks publishing.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+      - run: |
+          pip install --require-hashes --only-binary :all: -r scripts/requirements-tagging.txt
+      - name: The script with the SDK, against a stand-in for the API
+        run: python -m unittest discover -s scripts -p "test_tagging_with_the_sdk.py"
+      - name: What the next run would send
+        run: python scripts/tag_episodes.py --dry-run --max 20
 
   deploy:
     # Only publish from main, never from a pull request or a manual run on

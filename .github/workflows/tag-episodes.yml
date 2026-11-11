@@ -48,7 +48,10 @@ jobs:
           python-version: "3.12"
       - name: Install the tagging script's packages
         if: steps.key.outputs.present == 'true'
-        run: pip install -r scripts/requirements-tagging.txt
+        # Each one pinned to one version and to its files' checksums: this
+        # job holds the API key and may write to the repository.
+        run: |
+          pip install --require-hashes --only-binary :all: -r scripts/requirements-tagging.txt
       - name: Tag new episodes
         if: steps.key.outputs.present == 'true'
         # What was typed into "Run workflow" arrives as a variable and is
@@ -61,7 +64,17 @@ jobs:
           case "$MAX_EPISODES" in
             ''|*[!0-9]*) echo "::error::\"Most episodes\" must be a whole number."; exit 1 ;;
           esac
-          python scripts/tag_episodes.py --max "$MAX_EPISODES"
+          python scripts/tag_episodes.py --max "$MAX_EPISODES" --review "$RUNNER_TEMP/tags-review.md"
+      - name: Check what was written
+        if: steps.key.outputs.present == 'true'
+        # A pull request opened by a workflow starts no other workflow, so
+        # nothing would check tags.json before it is merged, and a file the
+        # schema refuses stops the catalog from being published. Checked
+        # here, as Publish checks it. (Installed only now: while the key was
+        # in use, the job held the SDK and nothing else.)
+        run: |
+          pip install --require-hashes --only-binary :all: -r scripts/requirements-check.txt
+          python scripts/check_catalog.py
       - name: Open a pull request for review
         if: steps.key.outputs.present == 'true'
         env:
@@ -78,6 +91,12 @@ jobs:
           git add tags.json
           git commit -m "tags: new episodes tagged by Claude"
           git push -u origin "$branch"
+          # The script wrote the pull request's text: each episode by its
+          # title, since tags.json names them by guid only.
+          body="$RUNNER_TEMP/tags-review.md"
+          if [ ! -s "$body" ]; then
+            echo "Claude tagged new episodes. Check them in the changes to tags.json (remove or change any that are wrong) and merge." > "$body"
+          fi
           gh pr create --base main --head "$branch" \
             --title "Episode tags: review new episodes" \
-            --body "Claude tagged the episodes below with traits from the app's vocabulary. Check them in the diff (remove or change any that are wrong) and merge; the app picks them up after the next publish."
+            --body-file "$body"
