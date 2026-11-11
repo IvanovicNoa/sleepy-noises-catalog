@@ -1,7 +1,7 @@
 name: Publish
 
 # Every change to main is validated, then published to
-# https://ivanovicnoa.github.io/sleepy-noises-catalog/catalog.json
+# https://listen.sleepynoises.com/catalog.json
 on:
   push:
     branches: [main]
@@ -15,47 +15,42 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Actions are named by commit, with their version beside it: a tag can be
+# moved to other code, a commit cannot. Dependabot proposes the updates.
 jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          # All of main's history, to read the catalog as it was before.
+          fetch-depth: 0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.12"
       - run: pip install "jsonschema[format]==4.*"
-      - name: Validate catalog.json
+      - name: Tests of the check itself
+        run: python -m unittest discover -s scripts -p "test_*.py"
+      - name: The catalog before this change
+        # A pull request is compared with the branch it goes into, a push
+        # with what was there before it. Read through `env`, never pasted
+        # into the script.
+        env:
+          BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
-          python - <<'PY'
-          import json, jsonschema
-          schema = json.load(open("catalog.schema.json"))
-          data = json.load(open("catalog.json"))
-          jsonschema.validate(data, schema, format_checker=jsonschema.FormatChecker())
-          ids = [p["id"] for p in data["podcasts"]]
-          assert len(ids) == len(set(ids)), "duplicate podcast id"
-          cat_ids = [c["id"] for c in data["categories"]]
-          assert len(cat_ids) == len(set(cat_ids)), "duplicate category id"
-          missing = [p["id"] for p in data["podcasts"] if p["categoryId"] not in cat_ids]
-          assert not missing, f"unknown categoryId on {missing}"
-          placeholders = [p["id"] for p in data["podcasts"] if "REPLACE-WITH" in p["feedUrl"]]
-          if placeholders:
-              print(f"::warning::placeholder feed URLs still in use: {placeholders}")
-          print("catalog OK:", len(ids), "podcasts")
-
-          # Reviewed episode tags (optional file, see scripts/tag_episodes.py).
-          tags = json.load(open("tags.json"))
-          jsonschema.validate(
-              tags,
-              json.load(open("tags.schema.json")),
-              format_checker=jsonschema.FormatChecker(),
-          )
-          keys = [(e["podcastId"], e["guid"]) for e in tags["episodes"]]
-          assert len(keys) == len(set(keys)), "duplicate podcastId + guid in tags.json"
-          unknown = sorted({p for p, _ in keys} - set(ids))
-          assert not unknown, f"tags.json names unknown podcasts {unknown}"
-          print("tags OK:", len(keys), "episodes")
-          PY
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE:catalog.json" 2>/dev/null; then
+            git show "$BEFORE:catalog.json" > "$RUNNER_TEMP/previous.json"
+          elif git cat-file -e "origin/main:catalog.json" 2>/dev/null; then
+            git show "origin/main:catalog.json" > "$RUNNER_TEMP/previous.json"
+          fi
+      - name: Validate catalog.json and tags.json
+        run: |
+          if [ -f "$RUNNER_TEMP/previous.json" ]; then
+            python scripts/check_catalog.py --previous "$RUNNER_TEMP/previous.json"
+          else
+            python scripts/check_catalog.py
+          fi
       - name: Assemble site
         run: |
           mkdir -p _site
@@ -63,7 +58,7 @@ jobs:
           if [ -d images ]; then cp -r images _site/; fi
           # Landing page for links shared from the app (…/listen/?show=…).
           cp -r listen _site/
-      - uses: actions/upload-pages-artifact@v5
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: _site
 
@@ -74,8 +69,8 @@ jobs:
     timeout-minutes: 10
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.12"
       - name: Check feeds
@@ -95,4 +90,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5

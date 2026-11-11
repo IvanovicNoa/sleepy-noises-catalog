@@ -6,8 +6,10 @@
 (function () {
   'use strict';
 
-  // Fill in once the app is live, e.g. 'https://apps.apple.com/app/id123'.
+  // Fill in once the app is live, e.g. 'https://apps.apple.com/app/id123'
+  // and 'https://play.google.com/store/apps/details?id=<the app's id>'.
   var APP_STORE_URL = '';
+  var PLAY_STORE_URL = '';
   var MAX_ID = 256;
 
   function cleanId(value) {
@@ -31,8 +33,14 @@
   var appUrl = 'sleepynoises://app/listen' + (show ? '?' + appQuery.toString() : '');
   el('open').setAttribute('href', appUrl);
 
-  if (APP_STORE_URL) {
-    el('store').setAttribute('href', APP_STORE_URL);
+  // "Get the app" leads to the phone's own store; on a computer, to the
+  // one that is filled in.
+  var isAndroid = /Android/i.test(navigator.userAgent);
+  var storeUrl = isAndroid
+    ? (PLAY_STORE_URL || APP_STORE_URL)
+    : (APP_STORE_URL || PLAY_STORE_URL);
+  if (/^https:\/\/(apps\.apple\.com|play\.google\.com)\//.test(storeUrl)) {
+    el('store').setAttribute('href', storeUrl);
     el('store').hidden = false;
     el('soon').hidden = true;
   }

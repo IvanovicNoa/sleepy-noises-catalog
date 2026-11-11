@@ -76,11 +76,16 @@
           },
           "featured": {
             "type": "boolean"
-          },
-          "premiumFeedUrl": {
-            "$ref": "#/$defs/megaphoneFeed"
           }
         }
+      }
+    },
+    "retired": {
+      "type": "array",
+      "description": "Ids of shows taken out for good. The app deletes a show (with the listener's likes, progress and downloads for it) only when its id is listed here, never because it is missing from podcasts. Once listed, an id stays listed and is never used again.",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/slug"
       }
     }
   },
@@ -92,8 +97,8 @@
     },
     "httpsUrl": {
       "type": "string",
-      "description": "Artwork must be on a host the app trusts, or the app rejects the whole catalog.",
-      "pattern": "^https://([A-Za-z0-9-]+\\.)*(megaphone\\.fm|megaphone\\.cloud|megaphone\\.imgix\\.net|ivanovicnoa\\.github\\.io)(/[^\\s]*)?$",
+      "description": "Artwork must be on a host the app trusts (Megaphone's, or this site), or the app rejects the whole catalog.",
+      "pattern": "^https://([A-Za-z0-9-]+\\.)*(megaphone\\.fm|megaphone\\.cloud|megaphone\\.imgix\\.net|listen\\.sleepynoises\\.com)(/[^\\s]*)?$",
       "maxLength": 2048
     },
     "megaphoneFeed": {
