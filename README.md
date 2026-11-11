@@ -125,7 +125,9 @@ tagging job, which holds the API key and may write to this repository. Dependabo
 request a month to update them. Merge it when its checks are green: Publish installs the new
 packages and runs the tagging script against a stand-in for the API (no key, no cost), so an
 update that would break Monday's run is red here first. If it is red, leave it; the header of
-each list says how to build it again.
+each list says how to build it again. A new major version of the Anthropic SDK is not offered
+(`.github/dependabot.yml`): it speaks a newer version of the API, and moving to it is done on
+purpose, with Anthropic's migration guide.
 
 ## Share landing page (`listen/`)
 

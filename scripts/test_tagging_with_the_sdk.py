@@ -205,7 +205,11 @@ class WithTheSdk(unittest.TestCase):
     def test_what_is_sent(self):
         with StandIn() as api:
             self.tag(api)
-        self.assertEqual(api.headers["x-api-key"], "not-a-key")
+        # The key from the environment, in the header SDK 1.x sends it in. A
+        # later major version sends "Authorization: Bearer" and speaks a newer
+        # version of the API: moving to one is a change to make on purpose
+        # (.github/dependabot.yml holds it back), and this line moves with it.
+        self.assertEqual(api.headers.get("x-api-key"), "not-a-key")
         self.assertEqual([r["custom_id"] for r in api.requests], [f"ep-{i}" for i in range(6)])
         sent = api.requests[0]["params"]
         self.assertEqual(sent["model"], "claude-opus-5-5")

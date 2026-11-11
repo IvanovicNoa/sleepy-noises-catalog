@@ -14,3 +14,10 @@ updates:
     groups:
       python:
         patterns: ["*"]
+    ignore:
+      # A new major version of the Anthropic SDK speaks a new version of the
+      # API (2.0 moved to 2026-10-21). That is a change to make on purpose,
+      # with scripts/tag_episodes.py and Anthropic's migration guide in hand,
+      # not an update to click through. Remove these lines to be offered it.
+      - dependency-name: anthropic
+        update-types: ["version-update:semver-major"]
