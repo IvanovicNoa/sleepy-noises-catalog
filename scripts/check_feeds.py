@@ -24,6 +24,8 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 from urllib.parse import urlsplit
 
+from workflow_log import one_line, warn
+
 TRUSTED_HOSTS = {
     "megaphone.fm",
     "megaphone.cloud",
@@ -38,10 +40,6 @@ ITUNES = "{http://www.itunes.com/dtds/podcast-1.0.dtd}"
 # answer differently per client, so test as the phone does.
 PLAYER_UA = "AppleCoreMedia/1.0.0.23G83 (iPhone; U; CPU OS 26_6_1 like Mac OS X; en_us)"
 FEED_UA = "SleepyNoises-FeedCheck/1.0"
-
-
-def warn(message):
-    print(f"::warning::{message}")
 
 
 def trusted(url):
@@ -95,7 +93,7 @@ def range_probe(url, start):
 
 def check(podcast):
     pid, url = podcast["id"], podcast["feedUrl"]
-    print(f"\n=== {pid}  {url}")
+    print(f"\n=== {one_line(pid)}  {one_line(url)}")
     request = urllib.request.Request(url, headers={"User-Agent": FEED_UA})
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
@@ -140,7 +138,9 @@ def check(podcast):
     untrusted = {h: n for h, n in hosts.items() if not trusted(f"https://{h}/")}
     if untrusted:
         warn(f"{pid}: episodes on hosts the app does not trust: {untrusted}")
-    if items and not usable:
+    if not items:
+        warn(f"{pid}: the feed has no episodes yet; the app shows the show with \"New episodes are on their way.\"")
+    elif not usable:
         warn(f"{pid}: the app will show NO episodes for this show")
 
     sample = usable[0] if usable else None
@@ -152,10 +152,11 @@ def check(podcast):
         return
     item, enclosure, audio = sample
     print(f"newest episode: {item.findtext('title')!r}")
-    print(f"  enclosure: {audio}")
+    print(f"  enclosure: {one_line(audio)}")
     print(
-        f"  declared length {enclosure.get('length')} bytes, type {enclosure.get('type')}, "
-        f"itunes:duration {item.findtext(ITUNES + 'duration')}"
+        f"  declared length {one_line(enclosure.get('length'))} bytes, "
+        f"type {one_line(enclosure.get('type'))}, "
+        f"itunes:duration {one_line(item.findtext(ITUNES + 'duration'))}"
     )
     start = range_probe(audio, 0)
     print(f"  range at start: {json.dumps(start)}")
@@ -173,7 +174,8 @@ def check(podcast):
 
 
 def main():
-    catalog = json.load(open("catalog.json"))
+    with open("catalog.json", encoding="utf-8") as file:
+        catalog = json.load(file)
     for podcast in catalog["podcasts"]:
         if "REPLACE-WITH" in podcast["feedUrl"]:
             continue

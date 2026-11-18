@@ -4,7 +4,20 @@ updates:
     directory: /
     schedule:
       interval: monthly
+  # scripts/requirements-*.txt, each package pinned to its checksums. One
+  # pull request a month for all of them, so they move together; the Publish
+  # workflow tries them against the scripts before it is merged.
   - package-ecosystem: pip
     directory: /scripts
     schedule:
       interval: monthly
+    groups:
+      python:
+        patterns: ["*"]
+    ignore:
+      # A new major version of the Anthropic SDK speaks a new version of the
+      # API (2.0 moved to 2026-10-21). That is a change to make on purpose,
+      # with scripts/tag_episodes.py and Anthropic's migration guide in hand,
+      # not an update to click through. Remove these lines to be offered it.
+      - dependency-name: anthropic
+        update-types: ["version-update:semver-major"]
